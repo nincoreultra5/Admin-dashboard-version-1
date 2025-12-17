@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- PUT YOUR LOGO URL HERE ---
-LOGO_URL = "nsk.png" 
+LOGO_URL = "https://github.com/nincoreultra5/Admin-dashboard-version-1/blob/main/nsk.png" 
 # Example: "nsk.png"
 
 # Custom CSS for "Attractive" UI
