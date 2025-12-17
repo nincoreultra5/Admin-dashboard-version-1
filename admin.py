@@ -365,7 +365,7 @@ else:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 7. DISTRIBUTION BY REASON (ATTRACTIVE CARDS)
+# 7. DISTRIBUTION BY HEAD (ATTRACTIVE CARDS)
 # -----------------------------------------------------------------------------
 c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
