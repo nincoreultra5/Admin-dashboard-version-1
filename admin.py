@@ -18,11 +18,11 @@ SUPABASE_URL = "https://ocokfyepdgirquwkhbhs.supabase.co".strip()
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jb2tmeWVwZGdpcnF1d2toYmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MzU5NjQsImV4cCI6MjA4MTUxMTk2NH0.x6onqjC02j5FTXikDw_5eBaaaPQDDTdFnGkZOfdxoOA".strip()
 
 # -----------------------------------------------------------------------------
-# 2. CUSTOM CSS (MORE ATTRACTIVE UI + PREMIUM DISTRIBUTION CARDS)
+# 2. CUSTOM CSS (NAVBAR FIX + ATTRACTIVE UI)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-/* Overall background */
+/* Background */
 .stApp {
     background:
         radial-gradient(1000px 480px at 10% 0%, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0) 60%),
@@ -30,24 +30,34 @@ st.markdown("""
         linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
 }
 
-/* Better padding */
+/* IMPORTANT: add space so top content never hides under Streamlit header/topbar */
 .block-container {
-    padding-top: 1.0rem;
+    padding-top: 4.6rem;   /* key fix */
     padding-bottom: 2.0rem;
 }
 
-/* Header */
-h1 {
-    color: #0f172a;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+/* Navbar container */
+.navbar {
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(15,23,42,0.06);
+    box-shadow: 0 10px 24px rgba(15,23,42,0.08);
+    border-radius: 16px;
+    padding: 12px 14px;
 }
 
-/* Subtitle */
-.subtle-subtitle {
-    margin-top: -6px;
-    color: rgba(15, 23, 42, 0.70);
+/* Navbar title */
+.nav-title {
+    font-size: 1.9rem;
+    font-weight: 950;
+    color: #0f172a;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+.nav-sub {
+    margin-top: 2px;
+    font-size: 0.95rem;
     font-weight: 700;
+    color: rgba(15,23,42,0.70);
 }
 
 /* KPI cards */
@@ -111,7 +121,7 @@ div[data-testid="stDataFrame"] {
     border: 1px solid rgba(15,23,42,0.06);
 }
 
-/* --- PREMIUM DISTRIBUTION (REASON) CARDS --- */
+/* PREMIUM DISTRIBUTION (REASON) CARDS */
 .reason-card {
     --accent: #6366f1;
     --bg1: rgba(99,102,241,0.18);
@@ -176,7 +186,7 @@ div[data-testid="stDataFrame"] {
     border-radius: 999px;
 }
 
-/* subtle shine */
+/* shine */
 .reason-card:after {
     content: "";
     position: absolute;
@@ -222,7 +232,7 @@ def get_data():
 
 df_stock, df_trans = get_data()
 
-# Metrics Logic
+# Metrics
 purchased = 0
 consumed_total = 0
 remaining = 0
@@ -237,20 +247,27 @@ if not df_stock.empty:
     remaining = df_stock[df_stock['organization'] == 'Warehouse']['quantity'].sum()
 
 # -----------------------------------------------------------------------------
-# 4. DASHBOARD LAYOUT
+# 4. TOP NAVBAR (LOGO ALWAYS VISIBLE)
 # -----------------------------------------------------------------------------
-col_logo, col_title = st.columns([1, 7], vertical_alignment="center")
-with col_logo:
-    st.image(LOGO_URL, width=120)
+nav1, nav2 = st.columns([1.2, 7], vertical_alignment="center")
+with nav1:
+    st.image(LOGO_URL, width=110)
 
-with col_title:
-    st.title("Nashik Run Distribution")
-    st.markdown("<div class='subtle-subtitle'>Live Inventory Analysis & Tracking System</div>", unsafe_allow_html=True)
+with nav2:
+    st.markdown("""
+    <div class="navbar">
+        <div class="nav-title">Nashik Run Distribution</div>
+        <div class="nav-sub">Live Inventory Analysis & Tracking System</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-# KPI cards
+# -----------------------------------------------------------------------------
+# 5. KPI CARDS
+# -----------------------------------------------------------------------------
 col1, col2, col3 = st.columns(3)
+
 with col1:
     st.markdown(f"""
     <div class="kpi-card blue-theme">
@@ -278,13 +295,21 @@ with col3:
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
 
-# Inventory Grid
+# -----------------------------------------------------------------------------
+# 6. INVENTORY TABLE
+# -----------------------------------------------------------------------------
 st.subheader("📦 Inventory Grid")
 
 if not df_stock.empty:
-    pivot_df = df_stock.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
+    pivot_df = df_stock.pivot_table(
+        index='organization',
+        columns='size',
+        values='quantity',
+        aggfunc='sum',
+        fill_value=0
+    )
     cols = sorted(pivot_df.columns, key=lambda x: int(x) if str(x).isdigit() else 999)
     pivot_df = pivot_df[cols]
 
@@ -300,7 +325,7 @@ else:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 5. REASON ANALYSIS (ATTRACTIVE CARDS)
+# 7. DISTRIBUTION BY REASON (ATTRACTIVE CARDS)
 # -----------------------------------------------------------------------------
 c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
@@ -308,7 +333,6 @@ with c1:
 with c2:
     selected_org = st.selectbox("📍 Filter Location", ["All", "Bosch", "TDK", "Mathma Nagar"])
 
-# Filter Logic
 df_filtered = df_out_all.copy()
 if selected_org != "All" and not df_filtered.empty:
     df_filtered = df_filtered[df_filtered['organization'] == selected_org]
@@ -319,7 +343,6 @@ reasons_list = [
     "Flag off & Torch bearers", "Police", "Others"
 ]
 
-# Theme per reason (colors + icon)
 REASON_THEME = {
     "Against Registration": {"accent": "#2563eb", "bg1": "rgba(37,99,235,0.18)", "bg2": "rgba(56,189,248,0.14)", "icon": "📝"},
     "Cycle Rally": {"accent": "#0ea5e9", "bg1": "rgba(14,165,233,0.18)", "bg2": "rgba(125,211,252,0.14)", "icon": "🚴"},
@@ -332,7 +355,6 @@ REASON_THEME = {
     "Others": {"accent": "#6366f1", "bg1": "rgba(99,102,241,0.18)", "bg2": "rgba(129,140,248,0.12)", "icon": "📦"},
 }
 
-# Reason Counts
 reason_counts = {r: 0 for r in reasons_list}
 if not df_filtered.empty:
     grouped = df_filtered.groupby('reason')['quantity'].sum()
@@ -343,10 +365,8 @@ max_reason_value = max(reason_counts.values()) if reason_counts else 0
 if max_reason_value <= 0:
     max_reason_value = 1
 
-# 3x3 Grid
 rows = [st.columns(3), st.columns(3), st.columns(3)]
 idx = 0
-
 for row in rows:
     for col in row:
         if idx >= len(reasons_list):
@@ -376,7 +396,7 @@ for row in rows:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 6. TREND GRAPH
+# 8. TREND GRAPH
 # -----------------------------------------------------------------------------
 st.subheader(f"📈 Daily Trend: {selected_org}")
 
