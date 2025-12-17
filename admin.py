@@ -249,7 +249,7 @@ with col2:
     <div class="kpi-card orange-theme">
         <div class="kpi-title">Total Distributed</div>
         <div class="kpi-value">{int(consumed_total)}</div>
-        <div class="kpi-note">Bosch, TDK, Mahatma Online/Offline</div>
+        <div class="kpi-note">Bosch, TDK, Mahatma Nagar Online/Offline</div>
     </div>
     """, unsafe_allow_html=True)
 
