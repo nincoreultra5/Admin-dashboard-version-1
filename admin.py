@@ -213,15 +213,16 @@ if not df_trans.empty:
     consumed_total = df_out_all["quantity"].sum()
 
 # ✅ MAHATMA REASON NORMALIZATION (Admin view only)
-# If Mahatma UI stores reason as "Distribute" / "Other", map "Distribute" into "Against Registration"
-# only for Mahatma Nagar Online/Offline, so "All" tab counts it in Against Registration. [web:166]
 if not df_out_all.empty and "organization" in df_out_all.columns and "reason" in df_out_all.columns:
     mahatma_mask = df_out_all["organization"].isin(["Mahatma Nagar Online", "Mahatma Nagar Offline"])
     distribute_mask = df_out_all["reason"].astype(str).str.strip().str.lower().eq("distribute")
     df_out_all.loc[mahatma_mask & distribute_mask, "reason"] = "Against Registration"
 
-if not df_stock.empty:
-    remaining = df_stock[df_stock["organization"] == "Warehouse"]["quantity"].sum()
+# ✅ CHANGE HERE: Current Stock = total across ALL organizations (not just Warehouse)
+if not df_stock.empty and "quantity" in df_stock.columns:
+    remaining = df_stock["quantity"].sum()  # sum all stock quantities [web:149]
+else:
+    remaining = 0
 
 # -----------------------------------------------------------------------------
 # 4. NAVBAR
@@ -266,7 +267,7 @@ with col3:
     <div class="kpi-card green-theme">
         <div class="kpi-title">Current Stock</div>
         <div class="kpi-value">{int(remaining)}</div>
-        <div class="kpi-note">Available in Warehouse</div>
+        <div class="kpi-note">All locations (Warehouse + all centers)</div>
     </div>
     """, unsafe_allow_html=True)
 
