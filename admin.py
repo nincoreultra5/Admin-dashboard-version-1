@@ -7,7 +7,7 @@ import altair as alt
 # 1. CONFIGURATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    layout="wide", 
+    layout="wide",
     page_title="Nashik Run Distribution",
     page_icon="👕"
 )
@@ -18,87 +18,176 @@ SUPABASE_URL = "https://ocokfyepdgirquwkhbhs.supabase.co".strip()
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jb2tmeWVwZGdpcnF1d2toYmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MzU5NjQsImV4cCI6MjA4MTUxMTk2NH0.x6onqjC02j5FTXikDw_5eBaaaPQDDTdFnGkZOfdxoOA".strip()
 
 # -----------------------------------------------------------------------------
-# 2. CUSTOM CSS (COLORS & STYLING)
+# 2. CUSTOM CSS (MORE ATTRACTIVE UI + PREMIUM DISTRIBUTION CARDS)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Background */
-    .stApp {
-        background-color: #f3f4f6;
-    }
+/* Overall background */
+.stApp {
+    background:
+        radial-gradient(1000px 480px at 10% 0%, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0) 60%),
+        radial-gradient(900px 520px at 90% 5%, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0) 55%),
+        linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
+}
 
-    /* Header */
-    h1 {
-        color: #111827;
-        font-weight: 800;
-    }
-    
-    /* CUSTOM KPI CARDS CSS */
-    .kpi-card {
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: transform 0.2s;
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    .kpi-card:hover {
-        transform: translateY(-5px);
-    }
-    .kpi-title {
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 5px;
-    }
-    .kpi-value {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 5px;
-    }
-    .kpi-note {
-        font-size: 0.8rem;
-        opacity: 0.8;
-    }
+/* Better padding */
+.block-container {
+    padding-top: 1.0rem;
+    padding-bottom: 2.0rem;
+}
 
-    /* COLOR THEMES FOR CARDS */
-    .blue-theme { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; border-left: 5px solid #2563eb; }
-    .orange-theme { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #9a3412; border-left: 5px solid #ea580c; }
-    .green-theme { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #166534; border-left: 5px solid #16a34a; }
+/* Header */
+h1 {
+    color: #0f172a;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
 
-    /* REASON CARDS CSS */
-    .reason-card {
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        text-align: center;
-        border-top: 4px solid #6366f1; /* Indigo Accent */
-        margin-bottom: 10px;
-    }
-    .reason-label {
-        font-size: 0.85rem;
-        color: #6b7280;
-        font-weight: 600;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .reason-number {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #1f2937;
-    }
-    
-    /* Table Styling */
-    div[data-testid="stDataFrame"] {
-        background: white;
-        padding: 1rem;
-        border-radius: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
+/* Subtitle */
+.subtle-subtitle {
+    margin-top: -6px;
+    color: rgba(15, 23, 42, 0.70);
+    font-weight: 700;
+}
+
+/* KPI cards */
+.kpi-card {
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(15,23,42,0.08);
+    text-align: left;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    border: 1px solid rgba(15,23,42,0.06);
+    position: relative;
+    overflow: hidden;
+}
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(15,23,42,0.12);
+}
+.kpi-title {
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+.kpi-value {
+    font-size: 2.25rem;
+    font-weight: 950;
+    margin-bottom: 6px;
+    line-height: 1.05;
+}
+.kpi-note {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    font-weight: 700;
+}
+
+/* KPI themes */
+.blue-theme {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #e0f2fe 100%);
+    color: #0b3a91;
+    border-left: 6px solid #2563eb;
+}
+.orange-theme {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 55%, #ffe4e6 100%);
+    color: #9a3412;
+    border-left: 6px solid #ea580c;
+}
+.green-theme {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 55%, #ecfdf5 100%);
+    color: #14532d;
+    border-left: 6px solid #16a34a;
+}
+
+/* Table styling */
+div[data-testid="stDataFrame"] {
+    background: rgba(255,255,255,0.9);
+    padding: 0.75rem;
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(15,23,42,0.06);
+    border: 1px solid rgba(15,23,42,0.06);
+}
+
+/* --- PREMIUM DISTRIBUTION (REASON) CARDS --- */
+.reason-card {
+    --accent: #6366f1;
+    --bg1: rgba(99,102,241,0.18);
+    --bg2: rgba(56,189,248,0.12);
+
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    border: 1px solid rgba(15,23,42,0.06);
+    border-left: 6px solid var(--accent);
+    padding: 14px 14px;
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(15,23,42,0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    min-height: 122px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+.reason-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(15,23,42,0.12);
+}
+.reason-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.reason-label {
+    font-size: 0.92rem;
+    font-weight: 950;
+    color: rgba(15,23,42,0.88);
+    line-height: 1.2;
+}
+.reason-icon {
+    font-size: 1.1rem;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(15,23,42,0.06);
+}
+.reason-number {
+    font-size: 2.05rem;
+    font-weight: 950;
+    color: #0f172a;
+    line-height: 1.0;
+    margin: 6px 0 10px 0;
+}
+
+/* mini progress bar */
+.reason-bar {
+    height: 10px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid rgba(15,23,42,0.06);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.reason-bar > div {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.0));
+    border-radius: 999px;
+}
+
+/* subtle shine */
+.reason-card:after {
+    content: "";
+    position: absolute;
+    top: -60px;
+    right: -80px;
+    width: 220px;
+    height: 220px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(18deg);
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -115,19 +204,20 @@ def init_connection():
 supabase = init_connection()
 
 def get_data():
-    if not supabase: return pd.DataFrame(), pd.DataFrame()
-    
-    # Fetch Data
+    if not supabase:
+        return pd.DataFrame(), pd.DataFrame()
+
     stock_data = supabase.table('stock').select('*').execute().data
     trans_data = supabase.table('transactions').select('*').execute().data
-    
+
     df_s = pd.DataFrame(stock_data)
     df_t = pd.DataFrame(trans_data)
-    
+
     if not df_t.empty:
-        df_t['created_at'] = pd.to_datetime(df_t['created_at'])
+        df_t['created_at'] = pd.to_datetime(df_t['created_at'], errors="coerce")
+        df_t = df_t.dropna(subset=["created_at"])
         df_t['date'] = df_t['created_at'].dt.date
-    
+
     return df_s, df_t
 
 df_stock, df_trans = get_data()
@@ -149,20 +239,18 @@ if not df_stock.empty:
 # -----------------------------------------------------------------------------
 # 4. DASHBOARD LAYOUT
 # -----------------------------------------------------------------------------
-
-# --- HEADER ---
-col_logo, col_title = st.columns([1, 7])
+col_logo, col_title = st.columns([1, 7], vertical_alignment="center")
 with col_logo:
     st.image(LOGO_URL, width=120)
+
 with col_title:
     st.title("Nashik Run Distribution")
-    st.markdown("**Live Inventory Analysis & Tracking System**")
+    st.markdown("<div class='subtle-subtitle'>Live Inventory Analysis & Tracking System</div>", unsafe_allow_html=True)
 
 st.markdown("---")
 
-# --- COLORFUL KPI CARDS ---
+# KPI cards
 col1, col2, col3 = st.columns(3)
-
 with col1:
     st.markdown(f"""
     <div class="kpi-card blue-theme">
@@ -192,28 +280,29 @@ with col3:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- INVENTORY TABLE ---
+# Inventory Grid
 st.subheader("📦 Inventory Grid")
 
 if not df_stock.empty:
     pivot_df = df_stock.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
-    cols = sorted(pivot_df.columns, key=lambda x: int(x) if x.isdigit() else 999)
+    cols = sorted(pivot_df.columns, key=lambda x: int(x) if str(x).isdigit() else 999)
     pivot_df = pivot_df[cols]
-    
-    # Totals
+
     pivot_df['TOTAL'] = pivot_df.sum(axis=1)
     sum_row = pivot_df.sum().to_frame().T
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
-    
+
     st.dataframe(final_df, use_container_width=True)
 else:
     st.info("No data available.")
 
 st.markdown("---")
 
-# --- REASON ANALYSIS ---
-c1, c2 = st.columns([3, 1])
+# -----------------------------------------------------------------------------
+# 5. REASON ANALYSIS (ATTRACTIVE CARDS)
+# -----------------------------------------------------------------------------
+c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
     st.subheader("📋 Distribution by Reason")
 with c2:
@@ -224,57 +313,94 @@ df_filtered = df_out_all.copy()
 if selected_org != "All" and not df_filtered.empty:
     df_filtered = df_filtered[df_filtered['organization'] == selected_org]
 
-# Reason Counts
 reasons_list = [
-    "Against Registration", "Cycle Rally", "VIP Kit", 
-    "Against Donation", "NGO/Beneficiary", "Volunteers", 
+    "Against Registration", "Cycle Rally", "VIP Kit",
+    "Against Donation", "NGO/Beneficiary", "Volunteers",
     "Flag off & Torch bearers", "Police", "Others"
 ]
+
+# Theme per reason (colors + icon)
+REASON_THEME = {
+    "Against Registration": {"accent": "#2563eb", "bg1": "rgba(37,99,235,0.18)", "bg2": "rgba(56,189,248,0.14)", "icon": "📝"},
+    "Cycle Rally": {"accent": "#0ea5e9", "bg1": "rgba(14,165,233,0.18)", "bg2": "rgba(125,211,252,0.14)", "icon": "🚴"},
+    "VIP Kit": {"accent": "#a855f7", "bg1": "rgba(168,85,247,0.18)", "bg2": "rgba(236,72,153,0.12)", "icon": "🎟️"},
+    "Against Donation": {"accent": "#f97316", "bg1": "rgba(249,115,22,0.18)", "bg2": "rgba(251,146,60,0.14)", "icon": "🧾"},
+    "NGO/Beneficiary": {"accent": "#22c55e", "bg1": "rgba(34,197,94,0.18)", "bg2": "rgba(16,185,129,0.12)", "icon": "🤝"},
+    "Volunteers": {"accent": "#10b981", "bg1": "rgba(16,185,129,0.18)", "bg2": "rgba(52,211,153,0.12)", "icon": "🧑‍🤝‍🧑"},
+    "Flag off & Torch bearers": {"accent": "#e11d48", "bg1": "rgba(225,29,72,0.16)", "bg2": "rgba(251,113,133,0.12)", "icon": "🔥"},
+    "Police": {"accent": "#334155", "bg1": "rgba(51,65,85,0.14)", "bg2": "rgba(148,163,184,0.12)", "icon": "🛡️"},
+    "Others": {"accent": "#6366f1", "bg1": "rgba(99,102,241,0.18)", "bg2": "rgba(129,140,248,0.12)", "icon": "📦"},
+}
+
+# Reason Counts
 reason_counts = {r: 0 for r in reasons_list}
 if not df_filtered.empty:
     grouped = df_filtered.groupby('reason')['quantity'].sum()
     for r in reasons_list:
-        reason_counts[r] = grouped.get(r, 0)
+        reason_counts[r] = float(grouped.get(r, 0))
+
+max_reason_value = max(reason_counts.values()) if reason_counts else 0
+if max_reason_value <= 0:
+    max_reason_value = 1
 
 # 3x3 Grid
 rows = [st.columns(3), st.columns(3), st.columns(3)]
 idx = 0
+
 for row in rows:
     for col in row:
-        if idx < len(reasons_list):
-            r_name = reasons_list[idx]
-            r_val = reason_counts[r_name]
-            with col:
-                st.markdown(f"""
-                <div class="reason-card">
+        if idx >= len(reasons_list):
+            continue
+
+        r_name = reasons_list[idx]
+        r_val = reason_counts.get(r_name, 0)
+        pct = max(0, min(100, (r_val / max_reason_value) * 100))
+        theme = REASON_THEME.get(r_name, {"accent": "#6366f1", "bg1": "rgba(99,102,241,0.18)", "bg2": "rgba(56,189,248,0.12)", "icon": "📌"})
+
+        with col:
+            st.markdown(f"""
+            <div class="reason-card" style="--accent:{theme['accent']}; --bg1:{theme['bg1']}; --bg2:{theme['bg2']};">
+                <div class="reason-top">
                     <div class="reason-label">{r_name}</div>
-                    <div class="reason-number">{int(r_val)}</div>
+                    <div class="reason-icon">{theme['icon']}</div>
                 </div>
-                """, unsafe_allow_html=True)
-            idx += 1
+                <div class="reason-number">{int(r_val)}</div>
+                <div class="reason-bar">
+                    <div style="width:{pct:.1f}%;"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        idx += 1
 
 st.markdown("---")
 
-# --- TREND GRAPH ---
+# -----------------------------------------------------------------------------
+# 6. TREND GRAPH
+# -----------------------------------------------------------------------------
 st.subheader(f"📈 Daily Trend: {selected_org}")
 
 if not df_filtered.empty:
     chart_data = df_filtered.groupby(['date', 'category'])['quantity'].sum().reset_index()
     chart_data['date'] = chart_data['date'].astype(str)
-    
-    # Vibrant Colors: Orange for Kids, Blue for Adults
-    chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+
+    chart = alt.Chart(chart_data).mark_bar(
+        cornerRadiusTopLeft=6,
+        cornerRadiusTopRight=6
+    ).encode(
         x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45, grid=False)),
         y=alt.Y('quantity', title='Count'),
-        color=alt.Color('category', 
-                        scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#3b82f6']), 
-                        title='Category'),
+        color=alt.Color(
+            'category',
+            scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#3b82f6']),
+            title='Category'
+        ),
         tooltip=['date', 'category', 'quantity']
     ).properties(
-        height=400,
+        height=420,
         background='transparent'
     ).configure_view(strokeWidth=0)
-    
+
     st.altair_chart(chart, use_container_width=True)
 else:
     st.warning(f"No distribution data for {selected_org}")
