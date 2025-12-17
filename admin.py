@@ -8,7 +8,7 @@ import altair as alt
 # -----------------------------------------------------------------------------
 st.set_page_config(
     layout="wide",
-    page_title="Nashik Run Distribution",
+    page_title="Nashik Run T-Shirt Distribution",
     page_icon="👕"
 )
 
@@ -155,8 +155,9 @@ st.markdown("""
 .row-warehouse th, .row-warehouse td { background: rgba(34,197,94,0.08); }
 .row-warehouse th { border-left: 6px solid #22c55e; }
 
-.row-mathma th, .row-mathma td { background: rgba(168,85,247,0.08); }
-.row-mathma th { border-left: 6px solid #a855f7; }
+/* Mahatma (Online/Offline) theme */
+.row-mahatma th, .row-mahatma td { background: rgba(168,85,247,0.08); }
+.row-mahatma th { border-left: 6px solid #a855f7; }
 
 .row-bosch th, .row-bosch td { background: rgba(239,68,68,0.10); color:#7f1d1d; }
 .row-bosch th { border-left: 6px solid #ef4444; }
@@ -184,16 +185,17 @@ def get_data():
     if not supabase:
         return pd.DataFrame(), pd.DataFrame()
 
-    stock_data = supabase.table('stock').select('*').execute().data
-    trans_data = supabase.table('transactions').select('*').execute().data
+    # Supabase Python select pattern [web:69]
+    stock_data = supabase.table("stock").select("*").execute().data
+    trans_data = supabase.table("transactions").select("*").execute().data
 
-    df_s = pd.DataFrame(stock_data)
-    df_t = pd.DataFrame(trans_data)
+    df_s = pd.DataFrame(stock_data or [])
+    df_t = pd.DataFrame(trans_data or [])
 
     if not df_t.empty:
-        df_t['created_at'] = pd.to_datetime(df_t['created_at'], errors="coerce")
+        df_t["created_at"] = pd.to_datetime(df_t["created_at"], errors="coerce")
         df_t = df_t.dropna(subset=["created_at"])
-        df_t['date'] = df_t['created_at'].dt.date
+        df_t["date"] = df_t["created_at"].dt.date
 
     return df_s, df_t
 
@@ -206,12 +208,12 @@ remaining = 0
 df_out_all = pd.DataFrame()
 
 if not df_trans.empty:
-    purchased = df_trans[(df_trans['organization'] == 'Warehouse') & (df_trans['type'] == 'in')]['quantity'].sum()
-    df_out_all = df_trans[(df_trans['organization'] != 'Warehouse') & (df_trans['type'] == 'out')]
-    consumed_total = df_out_all['quantity'].sum()
+    purchased = df_trans[(df_trans["organization"] == "Warehouse") & (df_trans["type"] == "in")]["quantity"].sum()
+    df_out_all = df_trans[(df_trans["organization"] != "Warehouse") & (df_trans["type"] == "out")]
+    consumed_total = df_out_all["quantity"].sum()
 
 if not df_stock.empty:
-    remaining = df_stock[df_stock['organization'] == 'Warehouse']['quantity'].sum()
+    remaining = df_stock[df_stock["organization"] == "Warehouse"]["quantity"].sum()
 
 # -----------------------------------------------------------------------------
 # 4. NAVBAR
@@ -247,7 +249,7 @@ with col2:
     <div class="kpi-card orange-theme">
         <div class="kpi-title">Total Distributed</div>
         <div class="kpi-value">{int(consumed_total)}</div>
-        <div class="kpi-note">Bosch, TDK, Mahatma Nagar</div>
+        <div class="kpi-note">Bosch, TDK, Mahatma Nagar Online, Mahatma Nagar Offline</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -275,20 +277,25 @@ def normalize_org(name: str) -> str:
     return " ".join(str(name).strip().lower().split())
 
 def make_inventory_table_html(df: pd.DataFrame) -> str:
-    # Build pivot
-    pivot_df = df.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
+    pivot_df = df.pivot_table(index="organization", columns="size", values="quantity", aggfunc="sum", fill_value=0)
     cols = sorted(pivot_df.columns, key=_safe_int_sort)
     pivot_df = pivot_df[cols]
-    pivot_df['TOTAL'] = pivot_df.sum(axis=1)
+    pivot_df["TOTAL"] = pivot_df.sum(axis=1)
 
     sum_row = pivot_df.sum().to_frame().T
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
 
-    # Force required order (handles slight spelling differences)
-    desired = ["warehouse", "mathma nagar", "mahatma nagar", "bosch", "tdk", "total"]
-    idx_norm = [normalize_org(i) for i in final_df.index]
-    # map norm -> original label (first match)
+    # Desired order
+    desired_norm = [
+        "warehouse",
+        "mahatma nagar online",
+        "mahatma nagar offline",
+        "bosch",
+        "tdk",
+        "total",
+    ]
+
     norm_to_original = {}
     for original in final_df.index.astype(str).tolist():
         n = normalize_org(original)
@@ -296,39 +303,25 @@ def make_inventory_table_html(df: pd.DataFrame) -> str:
             norm_to_original[n] = original
 
     ordered_original = []
-    # warehouse
-    if "warehouse" in norm_to_original:
-        ordered_original.append(norm_to_original["warehouse"])
-    # prefer exact "Mathma Nagar" if exists, else "Mahatma Nagar"
-    if "mathma nagar" in norm_to_original:
-        ordered_original.append(norm_to_original["mathma nagar"])
-    elif "mahatma nagar" in norm_to_original:
-        ordered_original.append(norm_to_original["mahatma nagar"])
-    # bosch, tdk
-    if "bosch" in norm_to_original:
-        ordered_original.append(norm_to_original["bosch"])
-    if "tdk" in norm_to_original:
-        ordered_original.append(norm_to_original["tdk"])
-    # total
-    if "total" in norm_to_original:
-        ordered_original.append(norm_to_original["total"])
+    for n in desired_norm:
+        if n in norm_to_original:
+            ordered_original.append(norm_to_original[n])
 
-    # append any other org rows not in the list
+    # Append any other org rows not in the list
     for original in final_df.index.astype(str).tolist():
         if original not in ordered_original:
             ordered_original.append(original)
 
     final_df = final_df.loc[ordered_original]
 
-    # Create HTML table manually for full control
     header_cols = ["Organization"] + [str(c) for c in final_df.columns]
 
     def row_class(org_label: str) -> str:
         n = normalize_org(org_label)
         if n == "warehouse":
             return "row-warehouse"
-        if n in ["mathma nagar", "mahatma nagar", "mathmanagar"]:
-            return "row-mathma"
+        if n in ["mahatma nagar online", "mahatma nagar offline"]:
+            return "row-mahatma"
         if n == "bosch":
             return "row-bosch"
         if n == "tdk":
@@ -341,13 +334,11 @@ def make_inventory_table_html(df: pd.DataFrame) -> str:
     html.append('<div class="table-card">')
     html.append('<table class="inv-table">')
 
-    # THEAD
     html.append("<thead><tr>")
     for h in header_cols:
         html.append(f"<th>{h}</th>")
     html.append("</tr></thead>")
 
-    # TBODY
     html.append("<tbody>")
     for org_label, row in final_df.iterrows():
         cls = row_class(str(org_label))
@@ -380,11 +371,14 @@ c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
     st.subheader("📋 Distribution by Reason")
 with c2:
-    selected_org = st.selectbox("📍 Filter Location", ["All", "Bosch", "TDK", "Mathma Nagar"])
+    selected_org = st.selectbox(
+        "📍 Filter Location",
+        ["All", "Bosch", "TDK", "Mahatma Nagar Online", "Mahatma Nagar Offline"]
+    )
 
 df_filtered = df_out_all.copy()
 if selected_org != "All" and not df_filtered.empty:
-    df_filtered = df_filtered[df_filtered['organization'] == selected_org]
+    df_filtered = df_filtered[df_filtered["organization"] == selected_org]
 
 reasons_list = [
     "Against Registration", "Cycle Rally", "VIP Kit",
@@ -406,7 +400,7 @@ REASON_THEME = {
 
 reason_counts = {r: 0 for r in reasons_list}
 if not df_filtered.empty:
-    grouped = df_filtered.groupby('reason')['quantity'].sum()
+    grouped = df_filtered.groupby("reason")["quantity"].sum()
     for r in reasons_list:
         reason_counts[r] = float(grouped.get(r, 0))
 
@@ -449,26 +443,26 @@ st.markdown("---")
 # -----------------------------------------------------------------------------
 st.subheader(f"📈 Daily Trend: {selected_org}")
 
-if not df_filtered.empty:
-    chart_data = df_filtered.groupby(['date', 'category'])['quantity'].sum().reset_index()
-    chart_data['date'] = chart_data['date'].astype(str)
+if not df_filtered.empty and "date" in df_filtered.columns:
+    chart_data = df_filtered.groupby(["date", "category"])["quantity"].sum().reset_index()
+    chart_data["date"] = chart_data["date"].astype(str)
 
-    chart = alt.Chart(chart_data).mark_bar(
-        cornerRadiusTopLeft=6,
-        cornerRadiusTopRight=6
-    ).encode(
-        x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45, grid=False)),
-        y=alt.Y('quantity', title='Count'),
-        color=alt.Color(
-            'category',
-            scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#3b82f6']),
-            title='Category'
-        ),
-        tooltip=['date', 'category', 'quantity']
-    ).properties(
-        height=420,
-        background='transparent'
-    ).configure_view(strokeWidth=0)
+    chart = (
+        alt.Chart(chart_data)
+        .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6)
+        .encode(
+            x=alt.X("date", title="Date", axis=alt.Axis(labelAngle=-45, grid=False)),
+            y=alt.Y("quantity", title="Count"),
+            color=alt.Color(
+                "category",
+                scale=alt.Scale(domain=["kids", "adults"], range=["#f97316", "#3b82f6"]),
+                title="Category",
+            ),
+            tooltip=["date", "category", "quantity"],
+        )
+        .properties(height=420, background="transparent")
+        .configure_view(strokeWidth=0)
+    )
 
     st.altair_chart(chart, use_container_width=True)
 else:
