@@ -4,7 +4,7 @@ import pandas as pd
 import altair as alt
 
 # -----------------------------------------------------------------------------
-# 1. PAGE CONFIGURATION & CUSTOM CSS (The "Attractive" Part)
+# 1. CONFIGURATION & STYLING
 # -----------------------------------------------------------------------------
 st.set_page_config(
     layout="wide", 
@@ -12,7 +12,11 @@ st.set_page_config(
     page_icon="👕"
 )
 
-# Custom CSS to style metrics as cards and clean up the UI
+# --- PUT YOUR LOGO URL HERE ---
+LOGO_URL = "https://via.placeholder.com/150x50?text=YOUR+LOGO+HERE" 
+# Example: "https://your-website.com/logo.png"
+
+# Custom CSS for "Attractive" UI
 st.markdown("""
 <style>
     /* Main Background */
@@ -25,7 +29,7 @@ st.markdown("""
         color: #1f2937;
         font-family: 'Helvetica Neue', sans-serif;
         font-weight: 700;
-        padding-bottom: 1rem;
+        padding-bottom: 0.5rem;
     }
     h3 {
         color: #374151;
@@ -50,11 +54,6 @@ st.markdown("""
         font-size: 2.2rem;
         font-weight: 700;
         color: #111827;
-    }
-    
-    /* Container/Card Styling */
-    div[data-testid="stVerticalBlock"] > div[style*="flex-direction: column;"] > div[data-testid="stVerticalBlock"] {
-        /* This targets containers inside columns loosely */
     }
     
     /* Table Styling */
@@ -103,7 +102,7 @@ def get_data():
 df_stock, df_trans = get_data()
 
 # -----------------------------------------------------------------------------
-# 4. DATA PROCESSING (METRICS)
+# 4. METRICS CALCULATION
 # -----------------------------------------------------------------------------
 purchased = 0
 if not df_trans.empty:
@@ -120,11 +119,23 @@ if not df_stock.empty:
     remaining = df_stock[df_stock['organization'] == 'Warehouse']['quantity'].sum()
 
 # -----------------------------------------------------------------------------
-# 5. DASHBOARD HEADER & KPI CARDS
+# 5. DASHBOARD LAYOUT
 # -----------------------------------------------------------------------------
-st.title("NR T-Shirt Distribution Analysis")
-st.markdown("Overview of inventory flow from Supplier to End Beneficiaries.")
 
+# --- LOGO & TITLE ---
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    if LOGO_URL and "http" in LOGO_URL:
+        st.image(LOGO_URL, width=120)
+    else:
+        st.write("📷 Logo") # Placeholder if URL is broken/empty
+with col_title:
+    st.title("NR T-Shirt Distribution Analysis")
+    st.markdown("Overview of inventory flow from Supplier to End Beneficiaries.")
+
+st.markdown("---")
+
+# --- KPI CARDS ---
 col1, col2, col3 = st.columns(3)
 with col1:
     st.metric("T-Shirts Purchased", f"{int(purchased)}", "Supplier → Warehouse")
@@ -133,11 +144,9 @@ with col2:
 with col3:
     st.metric("T-Shirts Remaining", f"{int(remaining)}", "Warehouse Stock")
 
-st.markdown("<br>", unsafe_allow_html=True) # Spacer
+st.markdown("<br>", unsafe_allow_html=True) 
 
-# -----------------------------------------------------------------------------
-# 6. INVENTORY TABLE
-# -----------------------------------------------------------------------------
+# --- INVENTORY TABLE ---
 st.subheader("📦 Live Inventory Grid")
 
 if not df_stock.empty:
@@ -151,30 +160,26 @@ if not df_stock.empty:
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
     
-    # Styled Dataframe
     st.dataframe(final_df, use_container_width=True)
 else:
     st.info("No stock data available.")
 
-st.markdown("<br>", unsafe_allow_html=True) # Spacer
+st.markdown("<br>", unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 7. DISTRIBUTION BY REASON (WITH FILTER)
-# -----------------------------------------------------------------------------
-# Layout: Title on left, Filter on right
+# --- REASONS GRID ---
 c1, c2 = st.columns([3, 1])
 with c1:
     st.subheader("📋 Distribution by Reason")
 with c2:
     selected_org = st.selectbox("📍 Filter by Location", ["All", "Bosch", "TDK", "Mathma Nagar"])
 
-# Filter Logic
+# Filter Data
 df_filtered = df_out_all.copy()
 if selected_org != "All":
     if not df_filtered.empty:
         df_filtered = df_filtered[df_filtered['organization'] == selected_org]
 
-# Reason Logic
+# Reason Counts
 reasons_list = [
     "Against Registration", "Cycle Rally", "VIP Kit", 
     "Against Donation", "NGO/Beneficiary", "Volunteers", 
@@ -187,7 +192,6 @@ if not df_filtered.empty:
         reason_counts[r] = grouped.get(r, 0)
 
 # 3x3 Grid Display
-# Using containers to create white "cards" for each reason
 r_rows = [st.columns(3), st.columns(3), st.columns(3)]
 r_idx = 0
 
@@ -197,7 +201,6 @@ for row in r_rows:
             r_name = reasons_list[r_idx]
             r_val = reason_counts[r_name]
             with col:
-                # Custom HTML card for reasons to ensure they look good
                 st.markdown(f"""
                 <div style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; text-align: center; margin-bottom: 10px;">
                     <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">{r_name}</div>
@@ -206,18 +209,15 @@ for row in r_rows:
                 """, unsafe_allow_html=True)
             r_idx += 1
 
-st.markdown("<br>", unsafe_allow_html=True) # Spacer
+st.markdown("<br>", unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 8. DAILY TREND GRAPH
-# -----------------------------------------------------------------------------
+# --- DAILY TREND GRAPH ---
 st.subheader(f"📈 Daily Trend: {selected_org}")
 
 if not df_filtered.empty:
     chart_data = df_filtered.groupby(['date', 'category'])['quantity'].sum().reset_index()
     chart_data['date'] = chart_data['date'].astype(str)
     
-    # Custom color scheme: Kids (Orange), Adults (Blue)
     chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
         x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45)),
         y=alt.Y('quantity', title='Count'),
@@ -236,8 +236,7 @@ if not df_filtered.empty:
     
     st.altair_chart(chart, use_container_width=True)
 else:
-    st.container(border=True).info(f"No distribution data available for {selected_org} to generate graph.")
+    st.container(border=True).info(f"No distribution data available for {selected_org}.")
 
-# Footer
 st.markdown("---")
 st.caption("NR Distribution System • v1.0")
