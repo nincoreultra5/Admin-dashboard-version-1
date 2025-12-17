@@ -8,7 +8,7 @@ import altair as alt
 # -----------------------------------------------------------------------------
 st.set_page_config(
     layout="wide", 
-    page_title="NR Distribution Dashboard",
+    page_title="Nashik Run Distribution Dashboard",
     page_icon="👕"
 )
 
