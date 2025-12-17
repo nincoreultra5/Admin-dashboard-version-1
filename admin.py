@@ -212,6 +212,14 @@ if not df_trans.empty:
     df_out_all = df_trans[(df_trans["organization"] != "Warehouse") & (df_trans["type"] == "out")]
     consumed_total = df_out_all["quantity"].sum()
 
+# ✅ MAHATMA REASON NORMALIZATION (Admin view only)
+# If Mahatma UI stores reason as "Distribute" / "Other", map "Distribute" into "Against Registration"
+# only for Mahatma Nagar Online/Offline, so "All" tab counts it in Against Registration. [web:166]
+if not df_out_all.empty and "organization" in df_out_all.columns and "reason" in df_out_all.columns:
+    mahatma_mask = df_out_all["organization"].isin(["Mahatma Nagar Online", "Mahatma Nagar Offline"])
+    distribute_mask = df_out_all["reason"].astype(str).str.strip().str.lower().eq("distribute")
+    df_out_all.loc[mahatma_mask & distribute_mask, "reason"] = "Against Registration"
+
 if not df_stock.empty:
     remaining = df_stock[df_stock["organization"] == "Warehouse"]["quantity"].sum()
 
@@ -362,7 +370,7 @@ else:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 7. DISTRIBUTION BY HEAD (ATTRACTIVE CARDS) — Mahatma only 2 reasons
+# 7. DISTRIBUTION BY HEAD (ATTRACTIVE CARDS)
 # -----------------------------------------------------------------------------
 c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
@@ -372,27 +380,17 @@ with c2:
         "📍 Filter Location",
         ["All", "Bosch", "TDK", "Mahatma Nagar Online", "Mahatma Nagar Offline"],
         index=0
-    )  # selectbox filtering usage [web:141]
+    )
 
 df_filtered = df_out_all.copy()
 if selected_org != "All" and not df_filtered.empty:
-    df_filtered = df_filtered[df_filtered["organization"] == selected_org]  # filtering pattern [web:137]
+    df_filtered = df_filtered[df_filtered["organization"] == selected_org]
 
-ALL_REASONS = [
+reasons_list = [
     "Against Registration", "Cycle Rally", "VIP Kit",
     "Against Donation", "NGO/Beneficiary", "Volunteers",
     "Flag off & Torch bearers", "Police", "Others"
 ]
-
-MAHATMA_REASONS = [
-    "Distribute by Head",
-    "Others"
-]
-
-if selected_org in ["Mahatma Nagar Online", "Mahatma Nagar Offline"]:
-    reasons_list = MAHATMA_REASONS
-else:
-    reasons_list = ALL_REASONS
 
 REASON_THEME = {
     "Against Registration": {"accent": "#2563eb", "bg1": "rgba(37,99,235,0.18)", "bg2": "rgba(56,189,248,0.14)", "icon": "📝"},
@@ -404,14 +402,11 @@ REASON_THEME = {
     "Flag off & Torch bearers": {"accent": "#e11d48", "bg1": "rgba(225,29,72,0.16)", "bg2": "rgba(251,113,133,0.12)", "icon": "🔥"},
     "Police": {"accent": "#334155", "bg1": "rgba(51,65,85,0.14)", "bg2": "rgba(148,163,184,0.12)", "icon": "🛡️"},
     "Others": {"accent": "#6366f1", "bg1": "rgba(99,102,241,0.18)", "bg2": "rgba(129,140,248,0.12)", "icon": "📦"},
-
-    # Mahatma-specific reason card
-    "Distribute by Head": {"accent": "#a855f7", "bg1": "rgba(168,85,247,0.18)", "bg2": "rgba(34,197,94,0.10)", "icon": "🧑‍💼"},
 }
 
 reason_counts = {r: 0 for r in reasons_list}
 if not df_filtered.empty:
-    grouped = df_filtered.groupby("reason")["quantity"].sum()  # groupby pattern [web:152]
+    grouped = df_filtered.groupby("reason")["quantity"].sum()
     for r in reasons_list:
         reason_counts[r] = float(grouped.get(r, 0))
 
@@ -419,14 +414,9 @@ max_reason_value = max(reason_counts.values()) if reason_counts else 0
 if max_reason_value <= 0:
     max_reason_value = 1
 
-# Layout: if only 2 reasons, show 2 cards in 2 columns; otherwise keep 3x3 grid
-if len(reasons_list) <= 2:
-    layout_rows = [st.columns(2)]
-else:
-    layout_rows = [st.columns(3), st.columns(3), st.columns(3)]
-
+rows = [st.columns(3), st.columns(3), st.columns(3)]
 idx = 0
-for row in layout_rows:
+for row in rows:
     for col in row:
         if idx >= len(reasons_list):
             continue
