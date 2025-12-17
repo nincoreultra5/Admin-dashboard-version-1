@@ -18,7 +18,7 @@ SUPABASE_URL = "https://ocokfyepdgirquwkhbhs.supabase.co".strip()
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jb2tmeWVwZGdpcnF1d2toYmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MzU5NjQsImV4cCI6MjA4MTUxMTk2NH0.x6onqjC02j5FTXikDw_5eBaaaPQDDTdFnGkZOfdxoOA".strip()
 
 # -----------------------------------------------------------------------------
-# 2. CUSTOM CSS (NAVBAR FIX + ATTRACTIVE UI)
+# 2. CUSTOM CSS (NAVBAR + PREMIUM TABLE)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
@@ -30,10 +30,7 @@ st.markdown("""
 }
 
 /* Make room so logo never hides under Streamlit top header */
-.block-container {
-    padding-top: 4.6rem;
-    padding-bottom: 2.0rem;
-}
+.block-container { padding-top: 4.6rem; padding-bottom: 2.0rem; }
 
 /* Navbar container */
 .navbar {
@@ -68,53 +65,21 @@ st.markdown("""
     position: relative;
     overflow: hidden;
 }
-.kpi-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 32px rgba(15,23,42,0.12);
-}
-.kpi-title {
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-    opacity: 0.9;
-}
-.kpi-value {
-    font-size: 2.25rem;
-    font-weight: 950;
-    margin-bottom: 6px;
-    line-height: 1.05;
-}
-.kpi-note {
-    font-size: 0.9rem;
-    opacity: 0.85;
-    font-weight: 700;
-}
+.kpi-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(15,23,42,0.12); }
+.kpi-title { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; opacity: 0.9; }
+.kpi-value { font-size: 2.25rem; font-weight: 950; margin-bottom: 6px; line-height: 1.05; }
+.kpi-note { font-size: 0.9rem; opacity: 0.85; font-weight: 700; }
 
 /* KPI themes */
-.blue-theme {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #e0f2fe 100%);
-    color: #0b3a91;
-    border-left: 6px solid #2563eb;
-}
-.orange-theme {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 55%, #ffe4e6 100%);
-    color: #9a3412;
-    border-left: 6px solid #ea580c;
-}
-.green-theme {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 55%, #ecfdf5 100%);
-    color: #14532d;
-    border-left: 6px solid #16a34a;
-}
+.blue-theme { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #e0f2fe 100%); color: #0b3a91; border-left: 6px solid #2563eb; }
+.orange-theme { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 55%, #ffe4e6 100%); color: #9a3412; border-left: 6px solid #ea580c; }
+.green-theme { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 55%, #ecfdf5 100%); color: #14532d; border-left: 6px solid #16a34a; }
 
 /* Distribution cards */
 .reason-card {
     --accent: #6366f1;
     --bg1: rgba(99,102,241,0.18);
     --bg2: rgba(56,189,248,0.12);
-
     background: linear-gradient(135deg, var(--bg1), var(--bg2));
     border: 1px solid rgba(15,23,42,0.06);
     border-left: 6px solid var(--accent);
@@ -127,61 +92,79 @@ st.markdown("""
     overflow: hidden;
     margin-bottom: 12px;
 }
-.reason-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 32px rgba(15,23,42,0.12);
-}
-.reason-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-.reason-label {
-    font-size: 0.92rem;
-    font-weight: 950;
-    color: rgba(15,23,42,0.88);
-    line-height: 1.2;
-}
-.reason-icon {
-    font-size: 1.1rem;
-    padding: 6px 8px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.7);
-    border: 1px solid rgba(15,23,42,0.06);
-}
-.reason-number {
-    font-size: 2.05rem;
-    font-weight: 950;
-    color: #0f172a;
-    line-height: 1.0;
-    margin: 6px 0 10px 0;
-}
-.reason-bar {
-    height: 10px;
-    background: rgba(255,255,255,0.65);
-    border: 1px solid rgba(15,23,42,0.06);
-    border-radius: 999px;
-    overflow: hidden;
-}
-.reason-bar > div {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.0));
-    border-radius: 999px;
-}
+.reason-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(15,23,42,0.12); }
+.reason-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px; }
+.reason-label { font-size:0.92rem; font-weight:950; color: rgba(15,23,42,0.88); line-height:1.2; }
+.reason-icon { font-size:1.1rem; padding:6px 8px; border-radius:10px; background: rgba(255,255,255,0.7); border: 1px solid rgba(15,23,42,0.06); }
+.reason-number { font-size:2.05rem; font-weight:950; color:#0f172a; line-height:1.0; margin:6px 0 10px 0; }
+.reason-bar { height:10px; background: rgba(255,255,255,0.65); border: 1px solid rgba(15,23,42,0.06); border-radius:999px; overflow:hidden; }
+.reason-bar > div { height:100%; width:0%; background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.0)); border-radius:999px; }
 .reason-card:after {
-    content: "";
-    position: absolute;
-    top: -60px;
-    right: -80px;
-    width: 220px;
-    height: 220px;
-    border-radius: 999px;
+    content:""; position:absolute; top:-60px; right:-80px; width:220px; height:220px; border-radius:999px;
     background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%);
     transform: rotate(18deg);
 }
+
+/* PREMIUM INVENTORY TABLE (HTML) */
+.table-card {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(15,23,42,0.06);
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(15,23,42,0.06);
+    padding: 10px 10px;
+    overflow-x: auto;
+}
+.inv-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.95rem;
+}
+.inv-table thead th {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.98);
+    color: #0f172a;
+    font-weight: 950;
+    border-bottom: 1px solid rgba(15,23,42,0.10);
+    padding: 10px 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+.inv-table tbody th {
+    text-align: left;
+    padding: 10px 10px;
+    font-weight: 950;
+    color: #0f172a;
+    border-bottom: 1px solid rgba(15,23,42,0.06);
+    white-space: nowrap;
+}
+.inv-table td {
+    text-align: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid rgba(15,23,42,0.06);
+    white-space: nowrap;
+    color: rgba(15,23,42,0.92);
+    font-weight: 700;
+}
+.inv-table tbody tr:hover td, .inv-table tbody tr:hover th {
+    background: rgba(15,23,42,0.03);
+}
+
+/* Row accents */
+.row-warehouse th, .row-warehouse td { background: rgba(34,197,94,0.08); }
+.row-warehouse th { border-left: 6px solid #22c55e; }
+
+.row-mathma th, .row-mathma td { background: rgba(168,85,247,0.08); }
+.row-mathma th { border-left: 6px solid #a855f7; }
+
+.row-bosch th, .row-bosch td { background: rgba(239,68,68,0.10); color:#7f1d1d; }
+.row-bosch th { border-left: 6px solid #ef4444; }
+
+.row-tdk th, .row-tdk td { background: rgba(59,130,246,0.10); color:#1e3a8a; }
+.row-tdk th { border-left: 6px solid #3b82f6; }
+
+.row-total th, .row-total td { background: rgba(15,23,42,0.08); font-weight: 950; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -231,7 +214,7 @@ if not df_stock.empty:
     remaining = df_stock[df_stock['organization'] == 'Warehouse']['quantity'].sum()
 
 # -----------------------------------------------------------------------------
-# 4. TOP NAVBAR
+# 4. NAVBAR
 # -----------------------------------------------------------------------------
 nav1, nav2 = st.columns([1.2, 7], vertical_alignment="center")
 with nav1:
@@ -280,7 +263,7 @@ with col3:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 6. INVENTORY GRID (BEAUTIFUL + CUSTOM ORDER + ROW COLORS)
+# 6. INVENTORY GRID (HTML TABLE - STABLE + BEAUTIFUL)
 # -----------------------------------------------------------------------------
 st.subheader("📦 Inventory Grid")
 
@@ -288,99 +271,105 @@ def _safe_int_sort(x):
     x = str(x)
     return int(x) if x.isdigit() else 10**9
 
-def style_inventory_table(df: pd.DataFrame) -> pd.io.formats.style.Styler:
-    # Row highlight by organization name
-    def highlight_rows(row):
-        org = str(row.name).strip().lower()
-        base = "font-weight:800;"
-        if org == "bosch":
-            return [base + "background-color: rgba(239,68,68,0.14); color:#7f1d1d; border-left: 6px solid #ef4444;"] * len(row)
-        if org == "tdk":
-            return [base + "background-color: rgba(59,130,246,0.14); color:#1e3a8a; border-left: 6px solid #3b82f6;"] * len(row)
-        if org == "warehouse":
-            return [base + "background-color: rgba(34,197,94,0.10); color:#14532d; border-left: 6px solid #22c55e;"] * len(row)
-        if org in ["mathma nagar", "mahatma nagar", "mathmanagar"]:
-            return [base + "background-color: rgba(168,85,247,0.10); color:#581c87; border-left: 6px solid #a855f7;"] * len(row)
-        if org == "total":
-            return ["font-weight:950; background-color: rgba(15,23,42,0.08); color:#0f172a;"] * len(row)
-        return [""] * len(row)
+def normalize_org(name: str) -> str:
+    return " ".join(str(name).strip().lower().split())
 
-    styler = (
-        df.style
-        .format(precision=0)
-        .apply(highlight_rows, axis=1)  # row-wise styling (Styler.apply) [web:57]
-        .set_properties(**{
-            "border": "1px solid rgba(15,23,42,0.08)",
-            "padding": "10px 10px",
-            "border-radius": "8px",
-            "font-size": "0.95rem",
-        })
-        .set_table_styles([
-            {"selector": "thead th", "props": [
-                ("background-color", "rgba(255,255,255,0.95)"),
-                ("color", "#0f172a"),
-                ("font-weight", "900"),
-                ("border", "1px solid rgba(15,23,42,0.10)"),
-                ("padding", "10px 10px"),
-            ]},
-            {"selector": "tbody th", "props": [
-                ("background-color", "rgba(255,255,255,0.92)"),
-                ("color", "#0f172a"),
-                ("font-weight", "900"),
-                ("border", "1px solid rgba(15,23,42,0.10)"),
-                ("padding", "10px 10px"),
-            ]},
-            {"selector": "table", "props": [
-                ("border-collapse", "separate"),
-                ("border-spacing", "0"),
-                ("width", "100%"),
-            ]},
-        ])
-    )
-    return styler
-
-if not df_stock.empty:
-    pivot_df = df_stock.pivot_table(
-        index='organization',
-        columns='size',
-        values='quantity',
-        aggfunc='sum',
-        fill_value=0
-    )
-
-    # Sort size columns numerically
+def make_inventory_table_html(df: pd.DataFrame) -> str:
+    # Build pivot
+    pivot_df = df.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
     cols = sorted(pivot_df.columns, key=_safe_int_sort)
     pivot_df = pivot_df[cols]
-
-    # Add TOTAL column
     pivot_df['TOTAL'] = pivot_df.sum(axis=1)
 
-    # Add TOTAL row
     sum_row = pivot_df.sum().to_frame().T
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
 
-    # Custom row order
-    desired_order = ["Warehouse", "Mathma Nagar", "Mathmanagar", "Mahatma Nagar", "Bosch", "TDK", "TOTAL"]
-    order_present = []
-    present = set(final_df.index.astype(str).tolist())
+    # Force required order (handles slight spelling differences)
+    desired = ["warehouse", "mathma nagar", "mahatma nagar", "bosch", "tdk", "total"]
+    idx_norm = [normalize_org(i) for i in final_df.index]
+    # map norm -> original label (first match)
+    norm_to_original = {}
+    for original in final_df.index.astype(str).tolist():
+        n = normalize_org(original)
+        if n not in norm_to_original:
+            norm_to_original[n] = original
 
-    for name in desired_order:
-        if name in present and name not in order_present:
-            order_present.append(name)
+    ordered_original = []
+    # warehouse
+    if "warehouse" in norm_to_original:
+        ordered_original.append(norm_to_original["warehouse"])
+    # prefer exact "Mathma Nagar" if exists, else "Mahatma Nagar"
+    if "mathma nagar" in norm_to_original:
+        ordered_original.append(norm_to_original["mathma nagar"])
+    elif "mahatma nagar" in norm_to_original:
+        ordered_original.append(norm_to_original["mahatma nagar"])
+    # bosch, tdk
+    if "bosch" in norm_to_original:
+        ordered_original.append(norm_to_original["bosch"])
+    if "tdk" in norm_to_original:
+        ordered_original.append(norm_to_original["tdk"])
+    # total
+    if "total" in norm_to_original:
+        ordered_original.append(norm_to_original["total"])
 
-    # Add any remaining orgs not listed (keep stable)
-    for name in final_df.index.astype(str).tolist():
-        if name not in order_present:
-            order_present.append(name)
+    # append any other org rows not in the list
+    for original in final_df.index.astype(str).tolist():
+        if original not in ordered_original:
+            ordered_original.append(original)
 
-    final_df = final_df.loc[order_present]
+    final_df = final_df.loc[ordered_original]
 
-    # Render beautiful styled table:
-    # Use st.table for better CSS support with pandas Styler. [web:52]
-    st.table(style_inventory_table(final_df))
-else:
+    # Create HTML table manually for full control
+    header_cols = ["Organization"] + [str(c) for c in final_df.columns]
+
+    def row_class(org_label: str) -> str:
+        n = normalize_org(org_label)
+        if n == "warehouse":
+            return "row-warehouse"
+        if n in ["mathma nagar", "mahatma nagar", "mathmanagar"]:
+            return "row-mathma"
+        if n == "bosch":
+            return "row-bosch"
+        if n == "tdk":
+            return "row-tdk"
+        if n == "total":
+            return "row-total"
+        return ""
+
+    html = []
+    html.append('<div class="table-card">')
+    html.append('<table class="inv-table">')
+
+    # THEAD
+    html.append("<thead><tr>")
+    for h in header_cols:
+        html.append(f"<th>{h}</th>")
+    html.append("</tr></thead>")
+
+    # TBODY
+    html.append("<tbody>")
+    for org_label, row in final_df.iterrows():
+        cls = row_class(str(org_label))
+        html.append(f'<tr class="{cls}">')
+        html.append(f"<th>{org_label}</th>")
+        for c in final_df.columns:
+            val = row[c]
+            try:
+                val = int(val)
+            except Exception:
+                pass
+            html.append(f"<td>{val}</td>")
+        html.append("</tr>")
+    html.append("</tbody>")
+
+    html.append("</table></div>")
+    return "".join(html)
+
+if df_stock.empty:
     st.info("No data available.")
+else:
+    st.markdown(make_inventory_table_html(df_stock), unsafe_allow_html=True)
 
 st.markdown("---")
 
