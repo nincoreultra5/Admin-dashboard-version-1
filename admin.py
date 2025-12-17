@@ -12,9 +12,9 @@ st.set_page_config(
     page_icon="👕"
 )
 
-# --- PUT YOUR LOGO URL HERE ---
-LOGO_URL = "https://github.com/nincoreultra5/Admin-dashboard-version-1/blob/main/nsk.png" 
-# Example: "nsk.png"
+# --- UPDATED: FIXED RAW IMAGE URL ---
+# I changed 'blob' to 'raw' in the URL so the image loads directly
+LOGO_URL = "https://github.com/nincoreultra5/Admin-dashboard-version-1/raw/main/nsk.png"
 
 # Custom CSS for "Attractive" UI
 st.markdown("""
@@ -123,12 +123,15 @@ if not df_stock.empty:
 # -----------------------------------------------------------------------------
 
 # --- LOGO & TITLE ---
-col_logo, col_title = st.columns([1, 5])
+# Adjusted column ratio for better logo fit
+col_logo, col_title = st.columns([1, 6])
+
 with col_logo:
-    if LOGO_URL and "http" in LOGO_URL:
-        st.image(LOGO_URL, width=120)
-    else:
-        st.write("📷 Logo") # Placeholder if URL is broken/empty
+    try:
+        st.image(LOGO_URL, width=130)
+    except:
+        st.warning("Logo not found")
+        
 with col_title:
     st.title("NR T-Shirt Distribution Analysis")
     st.markdown("Overview of inventory flow from Supplier to End Beneficiaries.")
