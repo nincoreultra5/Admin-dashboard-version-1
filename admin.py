@@ -22,7 +22,6 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
-/* Background */
 .stApp {
     background:
         radial-gradient(1000px 480px at 10% 0%, rgba(99,102,241,0.14) 0%, rgba(99,102,241,0) 60%),
@@ -30,9 +29,9 @@ st.markdown("""
         linear-gradient(180deg, #f8fafc 0%, #f3f4f6 100%);
 }
 
-/* IMPORTANT: add space so top content never hides under Streamlit header/topbar */
+/* Make room so logo never hides under Streamlit top header */
 .block-container {
-    padding-top: 4.6rem;   /* key fix */
+    padding-top: 4.6rem;
     padding-bottom: 2.0rem;
 }
 
@@ -44,8 +43,6 @@ st.markdown("""
     border-radius: 16px;
     padding: 12px 14px;
 }
-
-/* Navbar title */
 .nav-title {
     font-size: 1.9rem;
     font-weight: 950;
@@ -112,16 +109,7 @@ st.markdown("""
     border-left: 6px solid #16a34a;
 }
 
-/* Table styling */
-div[data-testid="stDataFrame"] {
-    background: rgba(255,255,255,0.9);
-    padding: 0.75rem;
-    border-radius: 14px;
-    box-shadow: 0 10px 22px rgba(15,23,42,0.06);
-    border: 1px solid rgba(15,23,42,0.06);
-}
-
-/* PREMIUM DISTRIBUTION (REASON) CARDS */
+/* Distribution cards */
 .reason-card {
     --accent: #6366f1;
     --bg1: rgba(99,102,241,0.18);
@@ -170,8 +158,6 @@ div[data-testid="stDataFrame"] {
     line-height: 1.0;
     margin: 6px 0 10px 0;
 }
-
-/* mini progress bar */
 .reason-bar {
     height: 10px;
     background: rgba(255,255,255,0.65);
@@ -185,8 +171,6 @@ div[data-testid="stDataFrame"] {
     background: linear-gradient(90deg, var(--accent), rgba(255,255,255,0.0));
     border-radius: 999px;
 }
-
-/* shine */
 .reason-card:after {
     content: "";
     position: absolute;
@@ -247,12 +231,11 @@ if not df_stock.empty:
     remaining = df_stock[df_stock['organization'] == 'Warehouse']['quantity'].sum()
 
 # -----------------------------------------------------------------------------
-# 4. TOP NAVBAR (LOGO ALWAYS VISIBLE)
+# 4. TOP NAVBAR
 # -----------------------------------------------------------------------------
 nav1, nav2 = st.columns([1.2, 7], vertical_alignment="center")
 with nav1:
     st.image(LOGO_URL, width=110)
-
 with nav2:
     st.markdown("""
     <div class="navbar">
@@ -267,7 +250,6 @@ st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 # 5. KPI CARDS
 # -----------------------------------------------------------------------------
 col1, col2, col3 = st.columns(3)
-
 with col1:
     st.markdown(f"""
     <div class="kpi-card blue-theme">
@@ -298,9 +280,64 @@ with col3:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 6. INVENTORY TABLE
+# 6. INVENTORY GRID (BEAUTIFUL + CUSTOM ORDER + ROW COLORS)
 # -----------------------------------------------------------------------------
 st.subheader("📦 Inventory Grid")
+
+def _safe_int_sort(x):
+    x = str(x)
+    return int(x) if x.isdigit() else 10**9
+
+def style_inventory_table(df: pd.DataFrame) -> pd.io.formats.style.Styler:
+    # Row highlight by organization name
+    def highlight_rows(row):
+        org = str(row.name).strip().lower()
+        base = "font-weight:800;"
+        if org == "bosch":
+            return [base + "background-color: rgba(239,68,68,0.14); color:#7f1d1d; border-left: 6px solid #ef4444;"] * len(row)
+        if org == "tdk":
+            return [base + "background-color: rgba(59,130,246,0.14); color:#1e3a8a; border-left: 6px solid #3b82f6;"] * len(row)
+        if org == "warehouse":
+            return [base + "background-color: rgba(34,197,94,0.10); color:#14532d; border-left: 6px solid #22c55e;"] * len(row)
+        if org in ["mathma nagar", "mahatma nagar", "mathmanagar"]:
+            return [base + "background-color: rgba(168,85,247,0.10); color:#581c87; border-left: 6px solid #a855f7;"] * len(row)
+        if org == "total":
+            return ["font-weight:950; background-color: rgba(15,23,42,0.08); color:#0f172a;"] * len(row)
+        return [""] * len(row)
+
+    styler = (
+        df.style
+        .format(precision=0)
+        .apply(highlight_rows, axis=1)  # row-wise styling (Styler.apply) [web:57]
+        .set_properties(**{
+            "border": "1px solid rgba(15,23,42,0.08)",
+            "padding": "10px 10px",
+            "border-radius": "8px",
+            "font-size": "0.95rem",
+        })
+        .set_table_styles([
+            {"selector": "thead th", "props": [
+                ("background-color", "rgba(255,255,255,0.95)"),
+                ("color", "#0f172a"),
+                ("font-weight", "900"),
+                ("border", "1px solid rgba(15,23,42,0.10)"),
+                ("padding", "10px 10px"),
+            ]},
+            {"selector": "tbody th", "props": [
+                ("background-color", "rgba(255,255,255,0.92)"),
+                ("color", "#0f172a"),
+                ("font-weight", "900"),
+                ("border", "1px solid rgba(15,23,42,0.10)"),
+                ("padding", "10px 10px"),
+            ]},
+            {"selector": "table", "props": [
+                ("border-collapse", "separate"),
+                ("border-spacing", "0"),
+                ("width", "100%"),
+            ]},
+        ])
+    )
+    return styler
 
 if not df_stock.empty:
     pivot_df = df_stock.pivot_table(
@@ -310,15 +347,38 @@ if not df_stock.empty:
         aggfunc='sum',
         fill_value=0
     )
-    cols = sorted(pivot_df.columns, key=lambda x: int(x) if str(x).isdigit() else 999)
+
+    # Sort size columns numerically
+    cols = sorted(pivot_df.columns, key=_safe_int_sort)
     pivot_df = pivot_df[cols]
 
+    # Add TOTAL column
     pivot_df['TOTAL'] = pivot_df.sum(axis=1)
+
+    # Add TOTAL row
     sum_row = pivot_df.sum().to_frame().T
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
 
-    st.dataframe(final_df, use_container_width=True)
+    # Custom row order
+    desired_order = ["Warehouse", "Mathma Nagar", "Mathmanagar", "Mahatma Nagar", "Bosch", "TDK", "TOTAL"]
+    order_present = []
+    present = set(final_df.index.astype(str).tolist())
+
+    for name in desired_order:
+        if name in present and name not in order_present:
+            order_present.append(name)
+
+    # Add any remaining orgs not listed (keep stable)
+    for name in final_df.index.astype(str).tolist():
+        if name not in order_present:
+            order_present.append(name)
+
+    final_df = final_df.loc[order_present]
+
+    # Render beautiful styled table:
+    # Use st.table for better CSS support with pandas Styler. [web:52]
+    st.table(style_inventory_table(final_df))
 else:
     st.info("No data available.")
 
