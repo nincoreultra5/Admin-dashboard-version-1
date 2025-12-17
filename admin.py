@@ -12,116 +12,130 @@ st.set_page_config(
     page_icon="👕"
 )
 
-# --- CREDENTIALS ---
+# --- LOGO & CREDENTIALS ---
 LOGO_URL = "https://github.com/nincoreultra5/Admin-dashboard-version-1/raw/main/nsk.png"
 SUPABASE_URL = "https://ocokfyepdgirquwkhbhs.supabase.co".strip()
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9jb2tmeWVwZGdpcnF1d2toYmhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MzU5NjQsImV4cCI6MjA4MTUxMTk2NH0.x6onqjC02j5FTXikDw_5eBaaaPQDDTdFnGkZOfdxoOA".strip()
 
 # -----------------------------------------------------------------------------
-# 2. CUSTOM CSS (VIBRANT COLORS)
+# 2. CUSTOM CSS (COLORS & STYLING)
 # -----------------------------------------------------------------------------
 st.markdown("""
 <style>
     /* Background */
-    .stApp { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
-    h1 { color: #0f172a; font-weight: 800; }
-    h3 { color: #334155; }
+    .stApp {
+        background-color: #f3f4f6;
+    }
 
-    /* --- TOP KPI CARDS --- */
+    /* Header */
+    h1 {
+        color: #111827;
+        font-weight: 800;
+    }
+    
+    /* CUSTOM KPI CARDS CSS */
     .kpi-card {
-        padding: 24px;
-        border-radius: 16px;
-        background: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e2e8f0;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         text-align: center;
         transition: transform 0.2s;
+        border: 1px solid rgba(0,0,0,0.05);
     }
-    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-    
-    .kpi-label { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 8px; }
-    .kpi-val { font-size: 2.5rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 8px; }
-    .kpi-sub { font-size: 0.8rem; font-weight: 500; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+    }
+    .kpi-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    .kpi-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+    }
+    .kpi-note {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
 
-    /* KPI Themes */
-    .theme-blue .kpi-sub { background: #eff6ff; color: #2563eb; }
-    .theme-orange .kpi-sub { background: #fff7ed; color: #ea580c; }
-    .theme-green .kpi-sub { background: #f0fdf4; color: #16a34a; }
+    /* COLOR THEMES FOR CARDS */
+    .blue-theme { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1e40af; border-left: 5px solid #2563eb; }
+    .orange-theme { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #9a3412; border-left: 5px solid #ea580c; }
+    .green-theme { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #166534; border-left: 5px solid #16a34a; }
 
-    /* --- COLORFUL REASON BOXES --- */
-    .reason-box {
+    /* REASON CARDS CSS */
+    .reason-card {
         background: white;
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        border: 1px solid #f1f5f9;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        text-align: center;
+        border-top: 4px solid #6366f1; /* Indigo Accent */
+        margin-bottom: 10px;
+    }
+    .reason-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+        height: 35px;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
     }
-    .reason-box:hover {
-        border-color: #cbd5e1;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    .reason-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1f2937;
     }
     
-    /* The Colored Stripe at the top of each box */
-    .reason-stripe {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 6px;
+    /* Table Styling */
+    div[data-testid="stDataFrame"] {
+        background: white;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    
-    .r-title { font-size: 0.85rem; color: #64748b; font-weight: 600; margin-top: 10px; text-align: center; height: 35px; display: flex; align-items: center; }
-    .r-count { font-size: 2.2rem; font-weight: 800; color: #1e293b; margin-top: 5px; }
-    
-    /* Unique Colors */
-    .c-reg { background: #3b82f6; } /* Blue */
-    .c-cyc { background: #14b8a6; } /* Teal */
-    .c-vip { background: #8b5cf6; } /* Purple */
-    .c-don { background: #f59e0b; } /* Amber */
-    .c-ngo { background: #10b981; } /* Emerald */
-    .c-vol { background: #ec4899; } /* Pink */
-    .c-flg { background: #ef4444; } /* Red */
-    .c-pol { background: #6366f1; } /* Indigo */
-    .c-oth { background: #64748b; } /* Slate */
-
 </style>
 """, unsafe_allow_html=True)
 
 # -----------------------------------------------------------------------------
-# 3. DATA FETCHING
+# 3. CONNECTION & DATA
 # -----------------------------------------------------------------------------
 @st.cache_resource
 def init_connection():
     try:
         return create_client(SUPABASE_URL, SUPABASE_KEY)
-    except: return None
+    except Exception:
+        return None
 
 supabase = init_connection()
 
 def get_data():
     if not supabase: return pd.DataFrame(), pd.DataFrame()
-    s = supabase.table('stock').select('*').execute().data
-    t = supabase.table('transactions').select('*').execute().data
     
-    df_s = pd.DataFrame(s)
-    df_t = pd.DataFrame(t)
+    # Fetch Data
+    stock_data = supabase.table('stock').select('*').execute().data
+    trans_data = supabase.table('transactions').select('*').execute().data
+    
+    df_s = pd.DataFrame(stock_data)
+    df_t = pd.DataFrame(trans_data)
     
     if not df_t.empty:
         df_t['created_at'] = pd.to_datetime(df_t['created_at'])
         df_t['date'] = df_t['created_at'].dt.date
+    
     return df_s, df_t
 
 df_stock, df_trans = get_data()
 
-# Logic
-purchased, consumed_total, remaining = 0, 0, 0
+# Metrics Logic
+purchased = 0
+consumed_total = 0
+remaining = 0
 df_out_all = pd.DataFrame()
 
 if not df_trans.empty:
@@ -136,124 +150,131 @@ if not df_stock.empty:
 # 4. DASHBOARD LAYOUT
 # -----------------------------------------------------------------------------
 
-# HEADER
-c_logo, c_title = st.columns([1, 7])
-with c_logo: st.image(LOGO_URL, width=110)
-with c_title:
+# --- HEADER ---
+col_logo, col_title = st.columns([1, 7])
+with col_logo:
+    st.image(LOGO_URL, width=120)
+with col_title:
     st.title("Nashik Run Distribution")
-    st.markdown("Live Inventory Tracking System")
+    st.markdown("**Live Inventory Analysis & Tracking System**")
 
 st.markdown("---")
 
-# TOP KPI CARDS
-k1, k2, k3 = st.columns(3)
-with k1:
+# --- COLORFUL KPI CARDS ---
+col1, col2, col3 = st.columns(3)
+
+with col1:
     st.markdown(f"""
-    <div class="kpi-card theme-blue">
-        <div class="kpi-label">Total Purchased</div>
-        <div class="kpi-val">{int(purchased)}</div>
-        <div class="kpi-sub">Supplier → Warehouse</div>
+    <div class="kpi-card blue-theme">
+        <div class="kpi-title">Total Purchased</div>
+        <div class="kpi-value">{int(purchased)}</div>
+        <div class="kpi-note">Supplier → Warehouse</div>
     </div>
     """, unsafe_allow_html=True)
-with k2:
+
+with col2:
     st.markdown(f"""
-    <div class="kpi-card theme-orange">
-        <div class="kpi-label">Total Distributed</div>
-        <div class="kpi-val">{int(consumed_total)}</div>
-        <div class="kpi-sub">To Beneficiaries</div>
+    <div class="kpi-card orange-theme">
+        <div class="kpi-title">Total Distributed</div>
+        <div class="kpi-value">{int(consumed_total)}</div>
+        <div class="kpi-note">Bosch, TDK, Mahatma Nagar</div>
     </div>
     """, unsafe_allow_html=True)
-with k3:
+
+with col3:
     st.markdown(f"""
-    <div class="kpi-card theme-green">
-        <div class="kpi-label">Current Stock</div>
-        <div class="kpi-val">{int(remaining)}</div>
-        <div class="kpi-sub">Available in Warehouse</div>
+    <div class="kpi-card green-theme">
+        <div class="kpi-title">Current Stock</div>
+        <div class="kpi-value">{int(remaining)}</div>
+        <div class="kpi-note">Available in Warehouse</div>
     </div>
     """, unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# INVENTORY GRID
-st.subheader("📦 Live Inventory")
+# --- INVENTORY TABLE ---
+st.subheader("📦 Inventory Grid")
+
 if not df_stock.empty:
     pivot_df = df_stock.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
     cols = sorted(pivot_df.columns, key=lambda x: int(x) if x.isdigit() else 999)
     pivot_df = pivot_df[cols]
+    
+    # Totals
     pivot_df['TOTAL'] = pivot_df.sum(axis=1)
     sum_row = pivot_df.sum().to_frame().T
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
+    
     st.dataframe(final_df, use_container_width=True)
 else:
-    st.info("No data.")
+    st.info("No data available.")
 
 st.markdown("---")
 
-# REASONS GRID (NOW COLORFUL)
-h_col, f_col = st.columns([3, 1])
-with h_col: st.subheader("📊 Distribution by Reason")
-with f_col: selected_org = st.selectbox("📍 Filter Location", ["All", "Bosch", "TDK", "Mathma Nagar"])
+# --- REASON ANALYSIS ---
+c1, c2 = st.columns([3, 1])
+with c1:
+    st.subheader("📋 Distribution by Reason")
+with c2:
+    selected_org = st.selectbox("📍 Filter Location", ["All", "Bosch", "TDK", "Mathma Nagar"])
 
 # Filter Logic
-df_filt = df_out_all.copy()
-if selected_org != "All" and not df_filt.empty:
-    df_filt = df_filt[df_filt['organization'] == selected_org]
+df_filtered = df_out_all.copy()
+if selected_org != "All" and not df_filtered.empty:
+    df_filtered = df_filtered[df_filtered['organization'] == selected_org]
 
-# Reason Data Mapping with Unique CSS Classes for Colors
-reasons_map = [
-    {"name": "Against Registration", "color": "c-reg"},
-    {"name": "Cycle Rally", "color": "c-cyc"},
-    {"name": "VIP Kit", "color": "c-vip"},
-    {"name": "Against Donation", "color": "c-don"},
-    {"name": "NGO/Beneficiary", "color": "c-ngo"},
-    {"name": "Volunteers", "color": "c-vol"},
-    {"name": "Flag off & Torch bearers", "color": "c-flg"}, 
-    {"name": "Police", "color": "c-pol"},
-    {"name": "Others", "color": "c-oth"},
+# Reason Counts
+reasons_list = [
+    "Against Registration", "Cycle Rally", "VIP Kit", 
+    "Against Donation", "NGO/Beneficiary", "Volunteers", 
+    "Flag off & Torch bearers", "Police", "Others"
 ]
+reason_counts = {r: 0 for r in reasons_list}
+if not df_filtered.empty:
+    grouped = df_filtered.groupby('reason')['quantity'].sum()
+    for r in reasons_list:
+        reason_counts[r] = grouped.get(r, 0)
 
-# Calculate Counts
-reason_counts = {}
-if not df_filt.empty:
-    grouped = df_filt.groupby('reason')['quantity'].sum()
-    for r in reasons_map:
-        reason_counts[r["name"]] = grouped.get(r["name"], 0)
-else:
-    for r in reasons_map: reason_counts[r["name"]] = 0
-
-# Render Colorful 3x3 Grid
+# 3x3 Grid
 rows = [st.columns(3), st.columns(3), st.columns(3)]
 idx = 0
 for row in rows:
     for col in row:
-        if idx < len(reasons_map):
-            item = reasons_map[idx]
-            val = reason_counts[item["name"]]
+        if idx < len(reasons_list):
+            r_name = reasons_list[idx]
+            r_val = reason_counts[r_name]
             with col:
                 st.markdown(f"""
-                <div class="reason-box">
-                    <div class="reason-stripe {item['color']}"></div>
-                    <div class="r-count">{int(val)}</div>
-                    <div class="r-title">{item['name']}</div>
+                <div class="reason-card">
+                    <div class="reason-label">{r_name}</div>
+                    <div class="reason-number">{int(r_val)}</div>
                 </div>
                 """, unsafe_allow_html=True)
             idx += 1
 
 st.markdown("---")
 
-# GRAPH
-st.subheader(f"📈 Trends: {selected_org}")
-if not df_filt.empty:
-    chart_data = df_filt.groupby(['date', 'category'])['quantity'].sum().reset_index()
+# --- TREND GRAPH ---
+st.subheader(f"📈 Daily Trend: {selected_org}")
+
+if not df_filtered.empty:
+    chart_data = df_filtered.groupby(['date', 'category'])['quantity'].sum().reset_index()
     chart_data['date'] = chart_data['date'].astype(str)
     
-    c = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+    # Vibrant Colors: Orange for Kids, Blue for Adults
+    chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
         x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45, grid=False)),
-        y=alt.Y('quantity', title='Qty'),
-        color=alt.Color('category', scale=alt.Scale(domain=['kids', 'adults'], range=['#f59e0b', '#3b82f6'])),
+        y=alt.Y('quantity', title='Count'),
+        color=alt.Color('category', 
+                        scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#3b82f6']), 
+                        title='Category'),
         tooltip=['date', 'category', 'quantity']
-    ).properties(height=350, background='transparent').configure_view(strokeWidth=0)
-    st.altair_chart(c, use_container_width=True)
+    ).properties(
+        height=400,
+        background='transparent'
+    ).configure_view(strokeWidth=0)
+    
+    st.altair_chart(chart, use_container_width=True)
 else:
-    st.info("No chart data available.")
+    st.warning(f"No distribution data for {selected_org}")
