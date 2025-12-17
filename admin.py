@@ -224,7 +224,7 @@ with nav1:
 with nav2:
     st.markdown("""
     <div class="navbar">
-        <div class="nav-title">Nashik Run Distribution</div>
+        <div class="nav-title">Nashik Run T-Shirt disturibution</div>
         <div class="nav-sub">Live Inventory Analysis & Tracking System</div>
     </div>
     """, unsafe_allow_html=True)
@@ -249,7 +249,7 @@ with col2:
     <div class="kpi-card orange-theme">
         <div class="kpi-title">Total Distributed</div>
         <div class="kpi-value">{int(consumed_total)}</div>
-        <div class="kpi-note">Bosch, TDK, Mahatma Nagar Online, Mahatma Nagar Offline</div>
+        <div class="kpi-note">Bosch, TDK, Mahatma Online/Offline</div>
     </div>
     """, unsafe_allow_html=True)
 
