@@ -185,7 +185,7 @@ def get_data():
     if not supabase:
         return pd.DataFrame(), pd.DataFrame()
 
-    # Supabase Python select pattern [web:69]
+    # Supabase Python select pattern: .table(...).select(...).execute().data [web:69]
     stock_data = supabase.table("stock").select("*").execute().data
     trans_data = supabase.table("transactions").select("*").execute().data
 
@@ -286,7 +286,6 @@ def make_inventory_table_html(df: pd.DataFrame) -> str:
     sum_row.index = ["TOTAL"]
     final_df = pd.concat([pivot_df, sum_row])
 
-    # Desired order
     desired_norm = [
         "warehouse",
         "mahatma nagar online",
@@ -307,13 +306,11 @@ def make_inventory_table_html(df: pd.DataFrame) -> str:
         if n in norm_to_original:
             ordered_original.append(norm_to_original[n])
 
-    # Append any other org rows not in the list
     for original in final_df.index.astype(str).tolist():
         if original not in ordered_original:
             ordered_original.append(original)
 
     final_df = final_df.loc[ordered_original]
-
     header_cols = ["Organization"] + [str(c) for c in final_df.columns]
 
     def row_class(org_label: str) -> str:
@@ -365,7 +362,7 @@ else:
 st.markdown("---")
 
 # -----------------------------------------------------------------------------
-# 7. DISTRIBUTION BY HEAD (ATTRACTIVE CARDS)
+# 7. DISTRIBUTION BY HEAD (ATTRACTIVE CARDS) — Mahatma only 2 reasons
 # -----------------------------------------------------------------------------
 c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
@@ -373,18 +370,29 @@ with c1:
 with c2:
     selected_org = st.selectbox(
         "📍 Filter Location",
-        ["All", "Bosch", "TDK", "Mahatma Nagar Online", "Mahatma Nagar Offline"]
-    )
+        ["All", "Bosch", "TDK", "Mahatma Nagar Online", "Mahatma Nagar Offline"],
+        index=0
+    )  # selectbox filtering usage [web:141]
 
 df_filtered = df_out_all.copy()
 if selected_org != "All" and not df_filtered.empty:
-    df_filtered = df_filtered[df_filtered["organization"] == selected_org]
+    df_filtered = df_filtered[df_filtered["organization"] == selected_org]  # filtering pattern [web:137]
 
-reasons_list = [
+ALL_REASONS = [
     "Against Registration", "Cycle Rally", "VIP Kit",
     "Against Donation", "NGO/Beneficiary", "Volunteers",
     "Flag off & Torch bearers", "Police", "Others"
 ]
+
+MAHATMA_REASONS = [
+    "Distribute by Head",
+    "Others"
+]
+
+if selected_org in ["Mahatma Nagar Online", "Mahatma Nagar Offline"]:
+    reasons_list = MAHATMA_REASONS
+else:
+    reasons_list = ALL_REASONS
 
 REASON_THEME = {
     "Against Registration": {"accent": "#2563eb", "bg1": "rgba(37,99,235,0.18)", "bg2": "rgba(56,189,248,0.14)", "icon": "📝"},
@@ -396,11 +404,14 @@ REASON_THEME = {
     "Flag off & Torch bearers": {"accent": "#e11d48", "bg1": "rgba(225,29,72,0.16)", "bg2": "rgba(251,113,133,0.12)", "icon": "🔥"},
     "Police": {"accent": "#334155", "bg1": "rgba(51,65,85,0.14)", "bg2": "rgba(148,163,184,0.12)", "icon": "🛡️"},
     "Others": {"accent": "#6366f1", "bg1": "rgba(99,102,241,0.18)", "bg2": "rgba(129,140,248,0.12)", "icon": "📦"},
+
+    # Mahatma-specific reason card
+    "Distribute by Head": {"accent": "#a855f7", "bg1": "rgba(168,85,247,0.18)", "bg2": "rgba(34,197,94,0.10)", "icon": "🧑‍💼"},
 }
 
 reason_counts = {r: 0 for r in reasons_list}
 if not df_filtered.empty:
-    grouped = df_filtered.groupby("reason")["quantity"].sum()
+    grouped = df_filtered.groupby("reason")["quantity"].sum()  # groupby pattern [web:152]
     for r in reasons_list:
         reason_counts[r] = float(grouped.get(r, 0))
 
@@ -408,9 +419,14 @@ max_reason_value = max(reason_counts.values()) if reason_counts else 0
 if max_reason_value <= 0:
     max_reason_value = 1
 
-rows = [st.columns(3), st.columns(3), st.columns(3)]
+# Layout: if only 2 reasons, show 2 cards in 2 columns; otherwise keep 3x3 grid
+if len(reasons_list) <= 2:
+    layout_rows = [st.columns(2)]
+else:
+    layout_rows = [st.columns(3), st.columns(3), st.columns(3)]
+
 idx = 0
-for row in rows:
+for row in layout_rows:
     for col in row:
         if idx >= len(reasons_list):
             continue
