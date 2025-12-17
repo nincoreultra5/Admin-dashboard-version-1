@@ -12,56 +12,96 @@ st.set_page_config(
     page_icon="👕"
 )
 
-# --- UPDATED: FIXED RAW IMAGE URL ---
-# I changed 'blob' to 'raw' in the URL so the image loads directly
+# --- LOGO URL ---
 LOGO_URL = "https://github.com/nincoreultra5/Admin-dashboard-version-1/raw/main/nsk.png"
 
-# Custom CSS for "Attractive" UI
+# --- CUSTOM CSS (ATTRACTIVE UI) ---
 st.markdown("""
 <style>
-    /* Main Background */
+    /* 1. Main Background & Font */
     .stApp {
-        background-color: #f8f9fa;
+        background-color: #f0f2f6; /* Very light grey-blue background */
+        font-family: 'Inter', sans-serif;
     }
     
-    /* Header Styling */
+    /* 2. Header Styling */
     h1 {
-        color: #1f2937;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 700;
-        padding-bottom: 0.5rem;
+        color: #1e3a8a; /* Dark Blue */
+        font-weight: 800;
+        letter-spacing: -0.5px;
     }
     h3 {
-        color: #374151;
+        color: #374151; /* Charcoal */
         font-weight: 600;
-        padding-top: 1rem;
+        margin-top: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 0.5rem;
     }
     
-    /* Metric Card Styling */
+    /* 3. Metric Card Styling (Top Row) */
     div[data-testid="stMetric"] {
-        background-color: #ffffff;
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
         padding: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         border: 1px solid #e5e7eb;
-        text-align: center;
+        transition: transform 0.2s ease-in-out;
+    }
+    div[data-testid="stMetric"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
     div[data-testid="stMetricLabel"] {
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #6b7280;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     div[data-testid="stMetricValue"] {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #111827;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1f2937;
     }
     
-    /* Table Styling */
+    /* 4. Table Styling */
     .stDataFrame {
         background-color: white;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 5. Custom Reason Cards (HTML) */
+    .reason-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .reason-card:hover {
+        border-color: #3b82f6; /* Blue border on hover */
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15); /* Blue glow */
+    }
+    .reason-title {
+        color: #6b7280;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        height: 30px; /* Fixed height for alignment */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .reason-value {
+        color: #111827;
+        font-size: 2rem;
+        font-weight: 800;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -122,38 +162,39 @@ if not df_stock.empty:
 # 5. DASHBOARD LAYOUT
 # -----------------------------------------------------------------------------
 
-# --- LOGO & TITLE ---
-# Adjusted column ratio for better logo fit
-col_logo, col_title = st.columns([1, 6])
+# --- HEADER SECTION ---
+col_logo, col_title = st.columns([1, 8])
 
 with col_logo:
     try:
-        st.image(LOGO_URL, width=130)
+        st.image(LOGO_URL, width=120)
     except:
-        st.warning("Logo not found")
+        st.write("📷") 
         
 with col_title:
-    st.title("NR T-Shirt Distribution Analysis")
-    st.markdown("Overview of inventory flow from Supplier to End Beneficiaries.")
+    st.title("Nashik Run Distribution")
+    st.markdown("Live Inventory Tracking & Distribution Analytics")
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-# --- KPI CARDS ---
+# --- KPI CARDS (TOP ROW) ---
 col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("T-Shirts Purchased", f"{int(purchased)}", "Supplier → Warehouse")
+    st.metric("Total Purchased", f"{int(purchased)}", "Supplier → Warehouse")
 with col2:
-    st.metric("T-Shirts Consumed", f"{int(consumed_total)}", "Total Distributed", delta_color="inverse")
+    st.metric("Total Distributed", f"{int(consumed_total)}", "To Beneficiaries", delta_color="inverse")
 with col3:
-    st.metric("T-Shirts Remaining", f"{int(remaining)}", "Warehouse Stock")
+    st.metric("Current Stock", f"{int(remaining)}", "Available in Warehouse")
 
-st.markdown("<br>", unsafe_allow_html=True) 
+st.markdown("---")
 
 # --- INVENTORY TABLE ---
 st.subheader("📦 Live Inventory Grid")
 
 if not df_stock.empty:
     pivot_df = df_stock.pivot_table(index='organization', columns='size', values='quantity', aggfunc='sum', fill_value=0)
+    
+    # Smart sorting for sizes
     cols = sorted(pivot_df.columns, key=lambda x: int(x) if x.isdigit() else 999)
     pivot_df = pivot_df[cols]
     
@@ -167,7 +208,7 @@ if not df_stock.empty:
 else:
     st.info("No stock data available.")
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
 
 # --- REASONS GRID ---
 c1, c2 = st.columns([3, 1])
@@ -194,7 +235,7 @@ if not df_filtered.empty:
     for r in reasons_list:
         reason_counts[r] = grouped.get(r, 0)
 
-# 3x3 Grid Display
+# 3x3 Grid Display with Enhanced Cards
 r_rows = [st.columns(3), st.columns(3), st.columns(3)]
 r_idx = 0
 
@@ -205,41 +246,39 @@ for row in r_rows:
             r_val = reason_counts[r_name]
             with col:
                 st.markdown(f"""
-                <div style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; text-align: center; margin-bottom: 10px;">
-                    <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; height: 40px; display: flex; align-items: center; justify-content: center;">{r_name}</div>
-                    <div style="color: #111827; font-size: 1.8rem; font-weight: bold;">{int(r_val)}</div>
+                <div class="reason-card">
+                    <div class="reason-title">{r_name}</div>
+                    <div class="reason-value">{int(r_val)}</div>
                 </div>
                 """, unsafe_allow_html=True)
             r_idx += 1
 
-st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("---")
 
 # --- DAILY TREND GRAPH ---
-st.subheader(f"📈 Daily Trend: {selected_org}")
+st.subheader(f"📈 Daily Trend Analysis: {selected_org}")
 
 if not df_filtered.empty:
     chart_data = df_filtered.groupby(['date', 'category'])['quantity'].sum().reset_index()
     chart_data['date'] = chart_data['date'].astype(str)
     
-    chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
-        x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45)),
-        y=alt.Y('quantity', title='Count'),
+    # Professional Chart Colors (Blue & Orange theme)
+    chart = alt.Chart(chart_data).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+        x=alt.X('date', title='Date', axis=alt.Axis(labelAngle=-45, grid=False)),
+        y=alt.Y('quantity', title='T-Shirts Distributed', axis=alt.Axis(grid=True, gridDash=[2,2])),
         color=alt.Color('category', 
-                        scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#3b82f6']), 
+                        scale=alt.Scale(domain=['kids', 'adults'], range=['#f97316', '#2563eb']), 
                         title='Category'),
         tooltip=['date', 'category', 'quantity']
     ).properties(
         height=400,
-        background='#ffffff'
-    ).configure_axis(
-        grid=False
+        background='transparent' # Transparent so it blends with app background
     ).configure_view(
         strokeWidth=0
     )
     
     st.altair_chart(chart, use_container_width=True)
 else:
-    st.container(border=True).info(f"No distribution data available for {selected_org}.")
+    st.container(border=True).info(f"No distribution data available for {selected_org} to generate graph.")
 
-st.markdown("---")
-st.caption("NR Distribution System • v1.0")
+st.markdown("<br><center><small style='color: #9ca3af'>Nashik Run Distribution System • v1.2</small></center>", unsafe_allow_html=True)
