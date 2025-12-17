@@ -369,7 +369,7 @@ st.markdown("---")
 # -----------------------------------------------------------------------------
 c1, c2 = st.columns([3, 1], vertical_alignment="center")
 with c1:
-    st.subheader("📋 Distribution by Reason")
+    st.subheader("📋 Distribution by Head")
 with c2:
     selected_org = st.selectbox(
         "📍 Filter Location",
