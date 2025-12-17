@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- PUT YOUR LOGO URL HERE ---
-LOGO_URL = "https://via.placeholder.com/150x50?text=YOUR+LOGO+HERE" 
+LOGO_URL = "nsk.png" 
 # Example: "nsk.png"
 
 # Custom CSS for "Attractive" UI
